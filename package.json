@@ -1,0 +1,43 @@
+{
+  "name": "hecks",
+  "version": "0.0.0",
+  "description": "Mount your express app onto your hapi server, aw heck!",
+  "main": "lib/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "lab -a code -t 100 -L",
+    "coveralls": "lab -r lcov | coveralls"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devinivy/hecks.git"
+  },
+  "keywords": [
+    "hapi",
+    "express",
+    "express on hapi",
+    "express with hapi"
+  ],
+  "author": "Devin Ivy <devin@bigroomstudios.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/devinivy/hecks/issues"
+  },
+  "homepage": "https://github.com/devinivy/hecks#readme",
+  "dependencies": {
+    "hoek": "4.x.x"
+  },
+  "peerDependencies": {
+    "express": ">=3 <5",
+    "hapi": ">=10 <17"
+  },
+  "devDependencies": {
+    "code": "4.x.x",
+    "coveralls": "2.x.x",
+    "express": "4.x.x",
+    "hapi": "16.x.x",
+    "lab": "11.x.x"
+  }
+}
