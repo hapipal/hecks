@@ -34,6 +34,7 @@
     "hapi": ">=10 <17"
   },
   "devDependencies": {
+    "body-parser": "1.x.x",
     "code": "4.x.x",
     "coveralls": "2.x.x",
     "express": "4.x.x",
