@@ -272,33 +272,35 @@ describe('Hecks', () => {
             });
         });
 
-        it('"express" handler ends response on error.', (done) => {
+        it('"express" handler ends response on error, before end.', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
-
-            const BadStream = class extends Stream.Readable {
-                _read() {
-
-                    if (this.isDone) {
-                        return;
-                    }
-
-                    this.isDone = true;
-
-                    this.push('success');
-                }
-            };
 
             const app = Express();
 
             app.get('/', (req, res) => {
 
+                const BadStream = class extends Stream.Readable {
+                    _read() {
+
+                        if (this.isDone) {
+                            this.push('|');
+                            this.push('second');
+                            this.push(null);
+                            return;
+                        }
+
+                        this.push('first');
+                        this.isDone = true;
+                    }
+                };
+
                 const badStream = new BadStream();
+                badStream.pipe(res);
 
-                setImmediate(() => res.emit('error'));
-
-                return badStream.pipe(res);
+                // Error after first chunk of data is written
+                badStream.once('data', () => res.emit('error', new Error()));
             });
 
             server.register(Hecks, (err) => {
@@ -318,9 +320,67 @@ describe('Hecks', () => {
                     url: '/'
                 }, (res) => {
 
-                    console.log(res.result);
-                    expect(res.statusCode).to.equal(500);
-                    //expect(res.result).to.equal({});
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result).to.equal('first');
+                    done();
+                });
+            });
+        });
+
+        it('"express" handler ends response on error, after end.', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const app = Express();
+
+            app.get('/', (req, res) => {
+
+                const BadStream = class extends Stream.Readable {
+                    _read() {
+
+                        if (this.isDone) {
+                            this.push('|');
+                            this.push('second');
+                            this.push(null);
+                            return;
+                        }
+
+                        this.push('first');
+                        this.isDone = true;
+                    }
+                };
+
+                // Error after response is finished
+
+                res.once('finish', () => {
+
+                    setImmediate(() => res.emit('error', new Error()));
+                });
+
+                const badStream = new BadStream();
+                badStream.pipe(res);
+            });
+
+            server.register(Hecks, (err) => {
+
+                expect(err).to.not.exist();
+
+                server.route({
+                    method: '*',
+                    path: '/',
+                    config: {
+                        handler: { express: app }
+                    }
+                });
+
+                server.inject({
+                    method: 'get',
+                    url: '/'
+                }, (res) => {
+
+                    expect(res.statusCode).to.equal(200);
+                    expect(res.result).to.equal('first|second');
                     done();
                 });
             });
