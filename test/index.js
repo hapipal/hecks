@@ -131,6 +131,44 @@ describe('Hecks', () => {
             });
         });
 
+        it('"express" handler plays nice with hapi request.setUrl().', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const app = Express();
+
+            app.get('/:num/tiny', (req, res) => {
+
+                return res.send(`${req.params.num} lil ones`);
+            });
+
+            server.register(Hecks, (err) => {
+
+                expect(err).to.not.exist();
+
+                server.route({
+                    method: '*',
+                    path: '/please/{expressPath*}',
+                    config: {
+                        handler: { express: app }
+                    }
+                });
+
+                server.ext('onRequest', (request, reply) => {
+
+                    request.setUrl('/please/144/tiny');
+                    reply.continue();
+                });
+
+                server.inject('/total/junk', (res) => {
+
+                    expect(res.result).to.equal('144 lil ones');
+                    done();
+                });
+            });
+        });
+
         it('"express" handler routes to empty expressPath.', (done) => {
 
             const server = new Hapi.Server();
@@ -385,13 +423,158 @@ describe('Hecks', () => {
                 });
             });
         });
+
+        it('"express" handler takes { app } config.', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const app = Express();
+
+            app.get('/', (req, res) => {
+
+                return res.send('ok');
+            });
+
+            server.register(Hecks, (err) => {
+
+                expect(err).to.not.exist();
+
+                server.route({
+                    method: '*',
+                    path: '/{expressPath*}',
+                    config: {
+                        handler: { express: { app } }
+                    }
+                });
+
+                server.inject('/', (res) => {
+
+                    expect(res.result).to.equal('ok');
+                    done();
+                });
+            });
+        });
+
+        it('"express" handler takes { app, express } config, using the provided express lib internally.', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const app = Express();
+
+            app.get('/', (req, res) => {
+
+                return res.send('ok');
+            });
+
+            let called = false;
+            const express = () => {
+
+                called = true;
+                return Express();
+            };
+
+            server.register(Hecks, (err) => {
+
+                expect(err).to.not.exist();
+
+                server.route({
+                    method: '*',
+                    path: '/{expressPath*}',
+                    config: {
+                        handler: { express: { app, express } }
+                    }
+                });
+
+                server.inject('/', (res) => {
+
+                    expect(res.result).to.equal('ok');
+                    expect(called).to.equal(true);
+                    done();
+                });
+            });
+        });
     });
 
-    describe('asPlugin()', () => {
+    describe('toPlugin()', () => {
 
-        it('doesn\'t have tests yet.', (done) => {
+        it('mounts an express app as a hapi plugin.', (done) => {
 
-            done(new Error('TODO'));
+            const server = new Hapi.Server();
+            server.connection();
+
+            const app = Express();
+
+            app.get('/', (req, res) => {
+
+                return res.send('ok');
+            });
+
+            server.register([
+                Hecks.toPlugin(app, 'x')
+            ], {
+                routes: { prefix: '/x' }
+            }, (err) => {
+
+                expect(err).to.not.exist();
+
+                server.inject('/x', (res) => {
+
+                    expect(res.result).to.equal('ok');
+                    done();
+                });
+            });
+        });
+
+        it('receives a name for the created plugin.', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const app = Express();
+
+            app.get('/', (req, res) => {
+
+                return res.send('ok');
+            });
+
+            server.register([
+                Hecks.toPlugin(app, 'my-name')
+            ], (err) => {
+
+                expect(err).to.not.exist();
+
+                expect(server.registrations['my-name']).to.exist();
+                done();
+            });
+        });
+
+        it('receives attributes the created plugin.', (done) => {
+
+            const server = new Hapi.Server();
+            server.connection();
+
+            const app = Express();
+
+            app.get('/', (req, res) => {
+
+                return res.send('ok');
+            });
+
+            server.register([
+                Hecks.toPlugin(app, { name: 'my-name', version: '4.2.0' })
+            ], (err) => {
+
+                expect(err).to.not.exist();
+
+                expect(server.registrations['my-name']).to.contain({
+                    name: 'my-name',
+                    version: '4.2.0'
+                });
+
+                done();
+            });
         });
     });
 });
