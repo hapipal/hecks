@@ -31,8 +31,11 @@ describe('Hecks', () => {
                 done();
             });
         });
+    });
 
-        it('"express" handler defaults payload and cookie parsing off.', (done) => {
+    describe('"express" handler', () => {
+
+        it('defaults payload and cookie parsing off.', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -63,7 +66,7 @@ describe('Hecks', () => {
             });
         });
 
-        it('"express" handler plays nice with express path params.', (done) => {
+        it('plays nice with express path params.', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -95,7 +98,7 @@ describe('Hecks', () => {
             });
         });
 
-        it('"express" handler plays nice with express payload parsing.', (done) => {
+        it('plays nice with express payload parsing.', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -131,7 +134,7 @@ describe('Hecks', () => {
             });
         });
 
-        it('"express" handler plays nice with hapi request.setUrl().', (done) => {
+        it('plays nice with hapi request.setUrl().', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -169,7 +172,7 @@ describe('Hecks', () => {
             });
         });
 
-        it('"express" handler routes to empty expressPath.', (done) => {
+        it('routes to empty expressPath.', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -201,7 +204,7 @@ describe('Hecks', () => {
             });
         });
 
-        it('"express" handler routes to non-empty expressPath.', (done) => {
+        it('routes to non-empty expressPath.', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -233,7 +236,7 @@ describe('Hecks', () => {
             });
         });
 
-        it('"express" handler routes to full path in absence of expressPath.', (done) => {
+        it('routes to full path in absence of expressPath.', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -265,7 +268,7 @@ describe('Hecks', () => {
             });
         });
 
-        it('"express" handler routes with plugin prefix.', (done) => {
+        it('routes with plugin prefix.', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -310,7 +313,7 @@ describe('Hecks', () => {
             });
         });
 
-        it('"express" handler ends response on error, before end.', (done) => {
+        it('ends response on error, before end.', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -365,7 +368,7 @@ describe('Hecks', () => {
             });
         });
 
-        it('"express" handler ends response on error, after end.', (done) => {
+        it('ends response on error, after end.', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -424,7 +427,7 @@ describe('Hecks', () => {
             });
         });
 
-        it('"express" handler takes { app } config.', (done) => {
+        it('takes { app } config.', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -456,7 +459,7 @@ describe('Hecks', () => {
             });
         });
 
-        it('"express" handler takes { app, express } config, using the provided express lib internally.', (done) => {
+        it('takes { app, express } config, using the provided express lib internally.', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
@@ -550,7 +553,7 @@ describe('Hecks', () => {
             });
         });
 
-        it('receives attributes the created plugin.', (done) => {
+        it('receives attributes for the created plugin.', (done) => {
 
             const server = new Hapi.Server();
             server.connection();
