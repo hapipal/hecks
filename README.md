@@ -16,32 +16,30 @@ const Hapi = require('hapi');
 const Hoek = require('hoek');
 const Hecks = require('hecks');
 
-const app = Express();
+(async () => {
 
-app.post('/user', BodyParser.json(), (req, res) => {
+    const app = Express();
 
-    const user = Hoek.shallow(req.body);
-    user.saved = true;
+    app.post('/user', BodyParser.json(), (req, res) => {
 
-    res.json(user);
-});
+        const user = Hoek.shallow(req.body);
+        user.saved = true;
 
-const server = new Hapi.Server();
-server.connection();
+        res.json(user);
+    });
 
-server.register([
-    Hecks.toPlugin(app, 'my-express-app')
-], (err) => {
+    const server = Hapi.server();
 
-    Hoek.assert(!err, err);
+    await server.register([
+        Hecks.toPlugin(app, 'my-express-app')
+    ]);
 
-    server.inject({
+    const { result } = await server.inject({
         method: 'post',
         url: '/user',
         payload: { name: 'Bill', faveFood: 'cactus' }
-    }, (res) => {
-
-        console.log(res.result); // {"name":"Bill","faveFood":"cactus","saved":true}
     });
-});
+
+    console.log(result); // {"name":"Bill","faveFood":"cactus","saved":true}
+})();
 ```
