@@ -2,9 +2,11 @@
 
 // Load modules
 
+const Stream = require('stream');
+
 const Lab = require('lab');
 const Code = require('code');
-const Stream = require('stream');
+const Hoek = require('hoek');
 const Express = require('express');
 const BodyParser = require('body-parser');
 const Hapi = require('hapi');
@@ -21,56 +23,44 @@ describe('Hecks', () => {
 
     describe('the hapi plugin', () => {
 
-        it('may be registered multiple times.', (done) => {
+        it('may be registered multiple times.', async () => {
 
-            const server = new Hapi.Server();
+            const server = Hapi.server();
 
-            server.register([Hecks, Hecks], (err) => {
-
-                expect(err).to.not.exist();
-                done();
-            });
+            await server.register([Hecks, Hecks]);
         });
     });
 
     describe('"express" handler', () => {
 
-        it('defaults payload and cookie parsing off.', (done) => {
+        it('defaults payload and cookie parsing off.', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
+            const server = Hapi.server();
 
-            server.register(Hecks, (err) => {
+            await server.register(Hecks);
 
-                expect(err).to.not.exist();
-
-                server.route({
-                    method: '*',
-                    path: '/{expressPath*}',
-                    config: {
-                        id: 'my-route',
-                        handler: { express: Express() }
-                    }
-                });
-
-                const route = server.lookup('my-route');
-
-                expect(route.settings.payload).to.include({
-                    parse: false,
-                    output: 'stream'
-                });
-
-                expect(route.settings.state.parse).to.equal(false);
-
-                done();
+            server.route({
+                method: '*',
+                path: '/{expressPath*}',
+                config: {
+                    id: 'my-route',
+                    handler: { express: Express() }
+                }
             });
+
+            const route = server.lookup('my-route');
+
+            expect(route.settings.payload).to.include({
+                parse: false,
+                output: 'stream'
+            });
+
+            expect(route.settings.state.parse).to.equal(false);
         });
 
-        it('plays nice with express path params.', (done) => {
+        it('plays nice with express path params.', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
-
+            const server = Hapi.server();
             const app = Express();
 
             app.get('/some/:descriptor', (req, res) => {
@@ -78,31 +68,24 @@ describe('Hecks', () => {
                 return res.send(`${req.params.descriptor} smackeroos`);
             });
 
-            server.register(Hecks, (err) => {
+            await server.register(Hecks);
 
-                expect(err).to.not.exist();
-
-                server.route({
-                    method: '*',
-                    path: '/{expressPath*}',
-                    config: {
-                        handler: { express: app }
-                    }
-                });
-
-                server.inject('/some/ole', (res) => {
-
-                    expect(res.result).to.equal('ole smackeroos');
-                    done();
-                });
+            server.route({
+                method: '*',
+                path: '/{expressPath*}',
+                config: {
+                    handler: { express: app }
+                }
             });
+
+            const { result } = await server.inject('/some/ole');
+
+            expect(result).to.equal('ole smackeroos');
         });
 
-        it('plays nice with express payload parsing.', (done) => {
+        it('plays nice with express payload parsing.', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
-
+            const server = Hapi.server();
             const app = Express();
 
             app.post('/', BodyParser.json(), (req, res) => {
@@ -110,35 +93,28 @@ describe('Hecks', () => {
                 return res.send(`${req.body.num} big ones`);
             });
 
-            server.register(Hecks, (err) => {
+            await server.register(Hecks);
 
-                expect(err).to.not.exist();
-
-                server.route({
-                    method: '*',
-                    path: '/{expressPath*}',
-                    config: {
-                        handler: { express: app }
-                    }
-                });
-
-                server.inject({
-                    method: 'post',
-                    url: '/',
-                    payload: { num: 7 }
-                }, (res) => {
-
-                    expect(res.result).to.equal('7 big ones');
-                    done();
-                });
+            server.route({
+                method: '*',
+                path: '/{expressPath*}',
+                config: {
+                    handler: { express: app }
+                }
             });
+
+            const { result } = await server.inject({
+                method: 'post',
+                url: '/',
+                payload: { num: 7 }
+            });
+
+            expect(result).to.equal('7 big ones');
         });
 
-        it('plays nice with hapi request.setUrl().', (done) => {
+        it('plays nice with hapi request.setUrl().', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
-
+            const server = Hapi.server();
             const app = Express();
 
             app.get('/:num/tiny', (req, res) => {
@@ -146,37 +122,31 @@ describe('Hecks', () => {
                 return res.send(`${req.params.num} lil ones`);
             });
 
-            server.register(Hecks, (err) => {
+            await server.register(Hecks);
 
-                expect(err).to.not.exist();
-
-                server.route({
-                    method: '*',
-                    path: '/please/{expressPath*}',
-                    config: {
-                        handler: { express: app }
-                    }
-                });
-
-                server.ext('onRequest', (request, reply) => {
-
-                    request.setUrl('/please/144/tiny');
-                    reply.continue();
-                });
-
-                server.inject('/total/junk', (res) => {
-
-                    expect(res.result).to.equal('144 lil ones');
-                    done();
-                });
+            server.route({
+                method: '*',
+                path: '/please/{expressPath*}',
+                config: {
+                    handler: { express: app }
+                }
             });
+
+            server.ext('onRequest', (request, h) => {
+
+                request.setUrl('/please/144/tiny');
+
+                return h.continue;
+            });
+
+            const { result } = await server.inject('/total/junk');
+
+            expect(result).to.equal('144 lil ones');
         });
 
-        it('routes to empty expressPath.', (done) => {
+        it('routes to empty expressPath.', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
-
+            const server = Hapi.server();
             const app = Express();
 
             app.get('/', (req, res) => {
@@ -184,31 +154,24 @@ describe('Hecks', () => {
                 return res.send('ok');
             });
 
-            server.register(Hecks, (err) => {
+            await server.register(Hecks);
 
-                expect(err).to.not.exist();
-
-                server.route({
-                    method: '*',
-                    path: '/prefix/{expressPath*}',
-                    config: {
-                        handler: { express: app }
-                    }
-                });
-
-                server.inject('/prefix', (res) => {
-
-                    expect(res.result).to.equal('ok');
-                    done();
-                });
+            server.route({
+                method: '*',
+                path: '/prefix/{expressPath*}',
+                config: {
+                    handler: { express: app }
+                }
             });
+
+            const { result } = await server.inject('/prefix');
+
+            expect(result).to.equal('ok');
         });
 
-        it('routes to non-empty expressPath.', (done) => {
+        it('routes to non-empty expressPath.', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
-
+            const server = Hapi.server();
             const app = Express();
 
             app.get('/be/okay', (req, res) => {
@@ -216,31 +179,24 @@ describe('Hecks', () => {
                 return res.send('ok');
             });
 
-            server.register(Hecks, (err) => {
+            await server.register(Hecks);
 
-                expect(err).to.not.exist();
-
-                server.route({
-                    method: '*',
-                    path: '/prefix/{expressPath*}',
-                    config: {
-                        handler: { express: app }
-                    }
-                });
-
-                server.inject('/prefix/be/okay', (res) => {
-
-                    expect(res.result).to.equal('ok');
-                    done();
-                });
+            server.route({
+                method: '*',
+                path: '/prefix/{expressPath*}',
+                config: {
+                    handler: { express: app }
+                }
             });
+
+            const { result } = await server.inject('/prefix/be/okay');
+
+            expect(result).to.equal('ok');
         });
 
-        it('routes to full path in absence of expressPath.', (done) => {
+        it('routes to full path in absence of expressPath.', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
-
+            const server = Hapi.server();
             const app = Express();
 
             app.get('/magical/:items', (req, res) => {
@@ -248,31 +204,24 @@ describe('Hecks', () => {
                 return res.send(`magical ${req.params.items}`);
             });
 
-            server.register(Hecks, (err) => {
+            await server.register(Hecks);
 
-                expect(err).to.not.exist();
-
-                server.route({
-                    method: 'get',
-                    path: '/magical/{items}',
-                    config: {
-                        handler: { express: app }
-                    }
-                });
-
-                server.inject('/magical/beans', (res) => {
-
-                    expect(res.result).to.equal('magical beans');
-                    done();
-                });
+            server.route({
+                method: 'get',
+                path: '/magical/{items}',
+                config: {
+                    handler: { express: app }
+                }
             });
+
+            const { result } = await server.inject('/magical/beans');
+
+            expect(result).to.equal('magical beans');
         });
 
-        it('routes with plugin prefix.', (done) => {
+        it('routes with plugin prefix.', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
-
+            const server = Hapi.server();
             const app = Express();
 
             app.get('/seat/yourself', (req, res) => {
@@ -280,44 +229,36 @@ describe('Hecks', () => {
                 return res.send('ok');
             });
 
-            const plugin = (srv, opts, next) => {
+            const plugin = {
+                name: 'plugin-x',
+                register(srv) {
 
-                srv.route({
-                    method: '*',
-                    path: '/do/{expressPath*2}',
-                    config: {
-                        handler: { express: app }
-                    }
-                });
-
-                next();
+                    srv.route({
+                        method: '*',
+                        path: '/do/{expressPath*2}',
+                        config: {
+                            handler: { express: app }
+                        }
+                    });
+                }
             };
 
-            plugin.attributes = { name: 'plugin-x' };
-
-            server.register([
+            await server.register([
                 Hecks,
                 {
-                    register: plugin,
+                    plugin,
                     routes: { prefix: '/please' }
                 }
-            ], (err) => {
+            ]);
 
-                expect(err).to.not.exist();
+            const { result } = await server.inject('/please/do/seat/yourself');
 
-                server.inject('/please/do/seat/yourself', (res) => {
-
-                    expect(res.result).to.equal('ok');
-                    done();
-                });
-            });
+            expect(result).to.equal('ok');
         });
 
-        it('ends response on error, before end.', (done) => {
+        it('ends response on error, before end.', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
-
+            const server = Hapi.server();
             const app = Express();
 
             app.get('/', (req, res) => {
@@ -344,35 +285,28 @@ describe('Hecks', () => {
                 badStream.once('data', () => res.emit('error', new Error()));
             });
 
-            server.register(Hecks, (err) => {
+            await server.register(Hecks);
 
-                expect(err).to.not.exist();
-
-                server.route({
-                    method: '*',
-                    path: '/',
-                    config: {
-                        handler: { express: app }
-                    }
-                });
-
-                server.inject({
-                    method: 'get',
-                    url: '/'
-                }, (res) => {
-
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.result).to.equal('first');
-                    done();
-                });
+            server.route({
+                method: '*',
+                path: '/',
+                config: {
+                    handler: { express: app }
+                }
             });
+
+            const { statusCode, result } = await server.inject({
+                method: 'get',
+                url: '/'
+            });
+
+            expect(statusCode).to.equal(200);
+            expect(result).to.equal('first');
         });
 
-        it('ends response on error, after end.', (done) => {
+        it('ends response on error, after end.', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
-
+            const server = Hapi.server();
             const app = Express();
 
             app.get('/', (req, res) => {
@@ -396,42 +330,36 @@ describe('Hecks', () => {
 
                 res.once('finish', () => {
 
-                    setImmediate(() => res.emit('error', new Error()));
+                    res.once('error', Hoek.ignore); // Avoid unhandled error event
+                    process.nextTick(() => res.emit('error', new Error()));
                 });
 
                 const badStream = new BadStream();
                 badStream.pipe(res);
             });
 
-            server.register(Hecks, (err) => {
+            await server.register(Hecks);
 
-                expect(err).to.not.exist();
-
-                server.route({
-                    method: '*',
-                    path: '/',
-                    config: {
-                        handler: { express: app }
-                    }
-                });
-
-                server.inject({
-                    method: 'get',
-                    url: '/'
-                }, (res) => {
-
-                    expect(res.statusCode).to.equal(200);
-                    expect(res.result).to.equal('first|second');
-                    done();
-                });
+            server.route({
+                method: '*',
+                path: '/',
+                config: {
+                    handler: { express: app }
+                }
             });
+
+            const { statusCode, result } = await server.inject({
+                method: 'get',
+                url: '/'
+            });
+
+            expect(statusCode).to.equal(200);
+            expect(result).to.equal('first|second');
         });
 
-        it('takes { app } config.', (done) => {
+        it('takes { app } config.', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
-
+            const server = Hapi.server();
             const app = Express();
 
             app.get('/', (req, res) => {
@@ -439,31 +367,24 @@ describe('Hecks', () => {
                 return res.send('ok');
             });
 
-            server.register(Hecks, (err) => {
+            await server.register(Hecks);
 
-                expect(err).to.not.exist();
-
-                server.route({
-                    method: '*',
-                    path: '/{expressPath*}',
-                    config: {
-                        handler: { express: { app } }
-                    }
-                });
-
-                server.inject('/', (res) => {
-
-                    expect(res.result).to.equal('ok');
-                    done();
-                });
+            server.route({
+                method: '*',
+                path: '/{expressPath*}',
+                config: {
+                    handler: { express: { app } }
+                }
             });
+
+            const { result } = await server.inject('/');
+
+            expect(result).to.equal('ok');
         });
 
-        it('takes { app, express } config, using the provided express lib internally.', (done) => {
+        it('takes { app, express } config, using the provided express lib internally.', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
-
+            const server = Hapi.server();
             const app = Express();
 
             app.get('/', (req, res) => {
@@ -478,35 +399,28 @@ describe('Hecks', () => {
                 return Express();
             };
 
-            server.register(Hecks, (err) => {
+            await server.register(Hecks);
 
-                expect(err).to.not.exist();
-
-                server.route({
-                    method: '*',
-                    path: '/{expressPath*}',
-                    config: {
-                        handler: { express: { app, express } }
-                    }
-                });
-
-                server.inject('/', (res) => {
-
-                    expect(res.result).to.equal('ok');
-                    expect(called).to.equal(true);
-                    done();
-                });
+            server.route({
+                method: '*',
+                path: '/{expressPath*}',
+                config: {
+                    handler: { express: { app, express } }
+                }
             });
+
+            const { result } = await server.inject('/');
+
+            expect(result).to.equal('ok');
+            expect(called).to.equal(true);
         });
     });
 
     describe('toPlugin()', () => {
 
-        it('mounts an express app as a hapi plugin.', (done) => {
+        it('mounts an express app as a hapi plugin.', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
-
+            const server = Hapi.server();
             const app = Express();
 
             app.get('/', (req, res) => {
@@ -514,27 +428,20 @@ describe('Hecks', () => {
                 return res.send('ok');
             });
 
-            server.register([
+            await server.register([
                 Hecks.toPlugin(app, 'x')
             ], {
                 routes: { prefix: '/x' }
-            }, (err) => {
-
-                expect(err).to.not.exist();
-
-                server.inject('/x', (res) => {
-
-                    expect(res.result).to.equal('ok');
-                    done();
-                });
             });
+
+            const { result } = await server.inject('/x');
+
+            expect(result).to.equal('ok');
         });
 
-        it('receives a name for the created plugin.', (done) => {
+        it('receives a name for the created plugin.', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
-
+            const server = Hapi.server();
             const app = Express();
 
             app.get('/', (req, res) => {
@@ -542,22 +449,16 @@ describe('Hecks', () => {
                 return res.send('ok');
             });
 
-            server.register([
+            await server.register([
                 Hecks.toPlugin(app, 'my-name')
-            ], (err) => {
+            ]);
 
-                expect(err).to.not.exist();
-
-                expect(server.registrations['my-name']).to.exist();
-                done();
-            });
+            expect(server.registrations['my-name']).to.exist();
         });
 
-        it('receives attributes for the created plugin.', (done) => {
+        it('receives attributes for the created plugin.', async () => {
 
-            const server = new Hapi.Server();
-            server.connection();
-
+            const server = Hapi.server();
             const app = Express();
 
             app.get('/', (req, res) => {
@@ -565,18 +466,13 @@ describe('Hecks', () => {
                 return res.send('ok');
             });
 
-            server.register([
+            await server.register([
                 Hecks.toPlugin(app, { name: 'my-name', version: '4.2.0' })
-            ], (err) => {
+            ]);
 
-                expect(err).to.not.exist();
-
-                expect(server.registrations['my-name']).to.contain({
-                    name: 'my-name',
-                    version: '4.2.0'
-                });
-
-                done();
+            expect(server.registrations['my-name']).to.contain({
+                name: 'my-name',
+                version: '4.2.0'
             });
         });
     });
