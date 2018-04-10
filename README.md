@@ -1,7 +1,7 @@
 # hecks
 Mount your express app onto your hapi server, aw heck!
 
-[![Build Status](https://travis-ci.org/devinivy/hecks.svg?branch=master)](https://travis-ci.org/devinivy/hecks) [![Coverage Status](https://coveralls.io/repos/devinivy/hecks/badge.svg?branch=master&service=github)](https://coveralls.io/github/devinivy/hecks?branch=master)
+[![Build Status](https://travis-ci.org/hapipal/hecks.svg?branch=master)](https://travis-ci.org/hapipal/hecks) [![Coverage Status](https://coveralls.io/repos/hapipal/hecks/badge.svg?branch=master&service=github)](https://coveralls.io/github/hapipal/hecks?branch=master)
 
 Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
 
