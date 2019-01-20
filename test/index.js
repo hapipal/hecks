@@ -6,7 +6,6 @@ const Stream = require('stream');
 
 const Lab = require('lab');
 const Code = require('code');
-const Hoek = require('hoek');
 const Express = require('express');
 const BodyParser = require('body-parser');
 const Hapi = require('hapi');
@@ -194,6 +193,31 @@ describe('Hecks', () => {
             expect(result).to.equal('ok');
         });
 
+        it('passes through query params when rewriting with expressPath.', async () => {
+
+            const server = Hapi.server();
+            const app = Express();
+
+            app.get('/be/okay', (req, res) => {
+
+                return res.send(`ok ${req.query.here}`);
+            });
+
+            await server.register(Hecks);
+
+            server.route({
+                method: '*',
+                path: '/prefix/{expressPath*}',
+                config: {
+                    handler: { express: app }
+                }
+            });
+
+            const { result } = await server.inject('/prefix/be/okay?here=present');
+
+            expect(result).to.equal('ok present');
+        });
+
         it('routes to full path in absence of expressPath.', async () => {
 
             const server = Hapi.server();
@@ -330,7 +354,7 @@ describe('Hecks', () => {
 
                 res.once('finish', () => {
 
-                    res.once('error', Hoek.ignore); // Avoid unhandled error event
+                    res.once('error', () => null); // Avoid unhandled error event
                     process.nextTick(() => res.emit('error', new Error()));
                 });
 
