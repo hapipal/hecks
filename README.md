@@ -13,8 +13,8 @@ Hecks allows you to seamlessly incorporate express applications into a **hapi v1
 ```js
 const Express = require('express');
 const BodyParser = require('body-parser');
-const Hapi = require('hapi');
-const Hoek = require('hoek');
+const Hapi = require('@hapi/hapi');
+const Hoek = require('@hapi/hoek');
 const Hecks = require('hecks');
 
 (async () => {

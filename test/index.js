@@ -4,11 +4,11 @@
 
 const Stream = require('stream');
 
-const Lab = require('lab');
-const Code = require('code');
+const Lab = require('@hapi/lab');
+const Code = require('@hapi/code');
 const Express = require('express');
 const BodyParser = require('body-parser');
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const Hecks = require('..');
 
 // Test shortcuts
