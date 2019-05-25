@@ -1,6 +1,6 @@
 {
   "name": "hecks",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Mount your express app onto your hapi server, aw heck!",
   "main": "lib/index.js",
   "directories": {
