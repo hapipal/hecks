@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/hapipal/hecks#readme",
   "dependencies": {
-    "@hapi/bounce": "1.x.x",
+    "@hapi/bounce": "2.x.x",
     "toys": "2.x.x"
   },
   "peerDependencies": {
@@ -35,9 +35,9 @@
     "express": ">=3 <5"
   },
   "devDependencies": {
-    "@hapi/code": "5.x.x",
+    "@hapi/code": "8.x.x",
     "@hapi/hapi": "18.x.x",
-    "@hapi/lab": "19.x.x",
+    "@hapi/lab": "22.x.x",
     "body-parser": "1.x.x",
     "coveralls": "3.x.x",
     "express": "4.x.x"
