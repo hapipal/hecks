@@ -31,12 +31,12 @@
     "toys": "2.x.x"
   },
   "peerDependencies": {
-    "@hapi/hapi": ">=17 <19",
+    "@hapi/hapi": ">=17 <20",
     "express": ">=3 <5"
   },
   "devDependencies": {
     "@hapi/code": "8.x.x",
-    "@hapi/hapi": "18.x.x",
+    "@hapi/hapi": "19.x.x",
     "@hapi/lab": "22.x.x",
     "body-parser": "1.x.x",
     "coveralls": "3.x.x",
