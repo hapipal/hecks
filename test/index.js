@@ -11,7 +11,7 @@ const Express = require('express');
 const BodyParser = require('body-parser');
 const Hecks = require('..');
 
-const Hapi = Somever.match(process.version, '>=12') ? require('@hapi/hapi-19') : require('@hapi/hapi');
+const Hapi = Somever.match(process.version, '>=12') ? require('@hapi/hapi-20') : require('@hapi/hapi');
 
 // Test shortcuts
 
