@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/hapipal/hecks#readme",
   "dependencies": {
-    "@hapi/bounce": "1.x.x",
+    "@hapi/bounce": "2.x.x",
     "toys": "2.x.x"
   },
   "peerDependencies": {
