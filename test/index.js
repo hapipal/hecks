@@ -6,12 +6,10 @@ const Stream = require('stream');
 
 const Lab = require('@hapi/lab');
 const Code = require('@hapi/code');
-const Somever = require('@hapi/somever');
 const Express = require('express');
 const BodyParser = require('body-parser');
 const Hecks = require('..');
-
-const Hapi = Somever.match(process.version, '>=12') ? require('@hapi/hapi-20') : require('@hapi/hapi');
+const Hapi = require('@hapi/hapi');
 
 // Test shortcuts
 
