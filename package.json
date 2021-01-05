@@ -1,5 +1,5 @@
 {
-  "name": "hecks",
+  "name": "@hapipal/hecks",
   "version": "2.3.0",
   "description": "Mount your express app onto your hapi server, aw heck!",
   "main": "lib/index.js",
@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "lab -a @hapi/code -t 100 -L -I \"FinalizationRegistry,WeakRef\"",
+    "test": "lab -a @hapi/code -t 100 -L",
     "coveralls": "lab -r lcov | coveralls"
   },
   "repository": {
@@ -28,7 +28,7 @@
   "homepage": "https://github.com/hapipal/hecks#readme",
   "dependencies": {
     "@hapi/bounce": "2.x.x",
-    "toys": "2.x.x"
+    "@hapipal/toys": "3.x.x"
   },
   "peerDependencies": {
     "@hapi/hapi": ">=19 <21",

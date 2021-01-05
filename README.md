@@ -1,12 +1,14 @@
 # hecks
 Mount your express app onto your hapi server, aw heck!
 
-[![Build Status](https://travis-ci.org/hapipal/hecks.svg?branch=master)](https://travis-ci.org/hapipal/hecks) [![Coverage Status](https://coveralls.io/repos/hapipal/hecks/badge.svg?branch=master&service=github)](https://coveralls.io/github/hapipal/hecks?branch=master)
+[![Build Status](https://travis-ci.com/hapipal/hecks.svg?branch=master)](https://travis-ci.com/hapipal/hecks) [![Coverage Status](https://coveralls.io/repos/hapipal/hecks/badge.svg?branch=master&service=github)](https://coveralls.io/github/hapipal/hecks?branch=master)
 
 Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
 
 ## Usage
 > See also the [API Reference](API.md)
+>
+> Hecks is intended for use with hapi v19+ and nodejs v12+ (see v2 for lower support).
 
 Hecks allows you to seamlessly incorporate express applications into a **hapi v17+** server.  This is particularly useful for testing an express server using [`server.inject()`](https://github.com/hapijs/hapi/blob/master/API.md#server.inject()), for unifying deployment of existing express and hapi applications, and as an initial stepping stone in migrating an express application to hapi.
 
@@ -14,8 +16,7 @@ Hecks allows you to seamlessly incorporate express applications into a **hapi v1
 const Express = require('express');
 const BodyParser = require('body-parser');
 const Hapi = require('@hapi/hapi');
-const Hoek = require('@hapi/hoek');
-const Hecks = require('hecks');
+const Hecks = require('@hapipal/hecks');
 
 (async () => {
 
@@ -23,7 +24,7 @@ const Hecks = require('hecks');
 
     app.post('/user', BodyParser.json(), (req, res) => {
 
-        const user = Hoek.shallow(req.body);
+        const user = { ...req.body };
         user.saved = true;
 
         res.json(user);

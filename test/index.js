@@ -6,10 +6,10 @@ const Stream = require('stream');
 
 const Lab = require('@hapi/lab');
 const Code = require('@hapi/code');
+const Hapi = require('@hapi/hapi');
 const Express = require('express');
 const BodyParser = require('body-parser');
 const Hecks = require('..');
-const Hapi = require('@hapi/hapi');
 
 // Test shortcuts
 
