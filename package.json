@@ -1,6 +1,6 @@
 {
   "name": "@hapipal/hecks",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "description": "Mount your express app onto your hapi server, aw heck!",
   "main": "lib/index.js",
   "directories": {
