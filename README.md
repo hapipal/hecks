@@ -10,7 +10,7 @@ Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
 >
 > Hecks is intended for use with hapi v19+ and nodejs v12+ (see v2 for lower support).
 
-Hecks allows you to seamlessly incorporate express applications into a **hapi v17+** server.  This is particularly useful for testing an express server using [`server.inject()`](https://github.com/hapijs/hapi/blob/master/API.md#server.inject()), for unifying deployment of existing express and hapi applications, and as an initial stepping stone in migrating an express application to hapi.
+Hecks allows you to seamlessly incorporate express applications into a hapi server.  This is particularly useful for testing an express server using [`server.inject()`](https://github.com/hapijs/hapi/blob/master/API.md#server.inject()), for unifying deployment of existing express and hapi applications, and as an initial stepping stone in migrating an express application to hapi.
 
 ```js
 const Express = require('express');
