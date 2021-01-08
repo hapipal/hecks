@@ -5,6 +5,11 @@ Mount your express app onto your hapi server, aw heck!
 
 Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
 
+## Installation
+```sh
+npm install hecks
+```
+
 ## Usage
 > See also the [API Reference](API.md)
 
